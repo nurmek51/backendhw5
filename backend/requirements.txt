@@ -14,3 +14,8 @@ httpcore==1.0.7
 tiktoken==0.9.0
 aiohttp
 google-cloud-storage
+sqlalchemy
+celery
+psycopg2-binary
+django-celery-beat
+redis

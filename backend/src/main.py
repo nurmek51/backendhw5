@@ -18,9 +18,6 @@ from openai import OpenAI
 from fastapi.middleware.cors import CORSMiddleware
 from src.voice.websocket import router as voice_router
 
-# Create database tables for all models
-Base.metadata.create_all(bind=engine)
-
 # Redis connection
 redis_client = redis.StrictRedis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379/0"), decode_responses=True)
 
@@ -177,7 +174,7 @@ def read_agent(agent_id: int, db: Session = Depends(get_db)):
     return agent
 
 @app.post("/messages/{sender_id}", response_model=schemas.MessageResponse)
-def send_message(
+async def send_message(
     sender_id: int,
     message: schemas.MessageCreate,
     db: Session = Depends(get_db)

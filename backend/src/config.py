@@ -13,6 +13,3 @@ class Settings(BaseSettings):
         env_file = str(Path(__file__).parent.parent / ".env")
 
 settings = Settings()
-
-
-print(settings.FRONTEND_URLS)
