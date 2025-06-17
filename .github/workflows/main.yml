@@ -1,0 +1,95 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub (Optional)
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push backend Docker image (Optional)
+        run: |
+          docker build -t your_docker_username/backend-v2v:latest ./backend
+          # docker push your_docker_username/backend-v2v:latest
+
+      - name: Build and push frontend Docker image (Optional)
+        run: |
+          docker build -t your_docker_username/frontend-v2v:latest ./frontend
+          # docker push your_docker_username/frontend-v2v:latest
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # Matches frontend/Dockerfile
+
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: ./frontend
+
+      - name: Generate frontend schemas (CI/CD)
+        run: npx @hey-api/openapi-ts
+        working-directory: ./frontend
+
+      - name: Run frontend tests (Placeholder)
+        run: echo "Running frontend tests..."
+        working-directory: ./frontend
+        # For actual tests, you would replace 'echo' with 'npm test' or similar
+
+      - name: Build frontend for production (CI/CD)
+        run: npm run build
+        working-directory: ./frontend
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12" # Matches backend/Dockerfile
+
+      - name: Install backend dependencies
+        run: pip install -r requirements.txt
+        working-directory: ./backend
+
+      - name: Run backend tests (Placeholder)
+        run: echo "Running backend tests..."
+        working-directory: ./backend
+        # For actual tests, you would replace 'echo' with 'pytest' or similar
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    environment: production # Requires environment configuration in GitHub settings
+    steps:
+      - name: Checkout repository for deployment
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to VM via SSH (Placeholder for Level 3)
+        run: |
+          # Replace your_vm_user and your_vm_ip with actual values
+          # Ensure your SSH private key is added to GitHub Actions secrets
+          # And your VM's public key is added to known_hosts on the runner if needed
+          echo "Deployment to VM initiated."
+          # Example: rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ user@your_vm_ip:/path/on/vm/
+          # Example: ssh user@your_vm_ip "cd /path/on/vm/V2V-Agent && docker-compose pull && docker-compose up -d"
+          echo "Please fill in your actual deployment commands here for Level 3."
